@@ -1,0 +1,28 @@
+- id: "NordPoolNibe"
+  alias: NordPool_Nibe
+  description: Niben ohjaus pörssisähkön mukaan.
+  triggers:
+  - trigger: time_pattern
+    hours: /1
+    minutes: 0
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: "Saku testaa."
+      title: "Sakkeus, ajankohta: {{ (now().timestamp()) | timestamp_custom('%d.%m.%Y klo %H:%M:%S') }}"
+  mode: single
+  
+- id: "NordPoolNibeLogs"
+  alias: "NordPool_Nibe_Logs"
+  description: Lokitus, että tarkistetaan pörssisähkö.
+  triggers:
+    - trigger: event
+      event_type: system_log_event
+  actions:
+  - action: system_log.write
+    data:
+      message: "[NIBE] Saku testaa lokitusta."
+      level: info
+      logger: LOGGER
