@@ -1,0 +1,115 @@
+views:
+  - path: default_view
+    title: Home
+    cards:
+      - type: grid
+        square: false
+        columns: 1
+        cards:
+          - type: entities
+            entities:
+              - entity: water_heater.f470_hot_water
+              - entity: sensor.bt20_exhaust_air_temp_1_40025
+              - entity: sensor.bt21_vented_air_temp_1_40026
+              - entity: sensor.bt50_room_temp_s1_40033
+              - entity: sensor.bt1_outdoor_temperature_40004
+            title: Nibe F470
+      - type: custom:apexcharts-card
+        graph_span: 24h
+        experimental:
+          color_threshold: true
+        header:
+          title: Sähkön hinta tänään (snt/kWh)
+          show: true
+        span:
+          start: day
+        now:
+          show: true
+          label: Nyt
+        series:
+          - entity: sensor.nordpool_kwh_fi_eur_3_10_0255
+            name: Tänään
+            type: column
+            color: blue
+            show:
+              legend_value: false
+              in_header: true
+              header_color_threshold: true
+            data_generator: |
+              return entity.attributes.raw_today.map((start, index) => {
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_today[index]["value"]];
+              });
+            color_threshold:
+              - value: 0
+                color: blue
+              - value: 3
+                color: green
+              - value: 8
+                color: darkgreen
+              - value: 15
+                color: darkorange
+              - value: 30
+                color: red
+      - type: custom:apexcharts-card
+        graph_span: 24h
+        experimental:
+          color_threshold: true
+        header:
+          title: Sähkön hinta huomenna (snt/kWh)
+          show: true
+        span:
+          start: day
+          offset: +1d
+        now:
+          show: true
+          label: Now
+          color: '#ff0000'
+        series:
+          - entity: sensor.nordpool_kwh_fi_eur_3_10_0255
+            name: Huomenna
+            type: column
+            color: green
+            show:
+              legend_value: false
+              in_header: true
+              header_color_threshold: true
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((start, index) => {
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_tomorrow[index]["value"]];
+              });
+            color_threshold:
+              - value: 0
+                color: blue
+              - value: 3
+                color: green
+              - value: 8
+                color: darkgreen
+              - value: 15
+                color: darkorange
+              - value: 30
+                color: red
+      - show_current: true
+        show_forecast: true
+        type: weather-forecast
+        entity: weather.forecast_koti
+        forecast_type: hourly
+        forecast_slots: 9
+      - type: entities
+        entities:
+          - sensor.nordpool_kwh_fi_eur_3_10_0255
+        title: Nyt hinta
+      - type: entities
+        entities:
+          - select.hot_water_comfort_mode_47041
+      - type: entities
+        entities:
+          - entity: sensor.shelly_total_energy_kwh
+      - type: entities
+        entities:
+          - entity: sensor.soliscloud_ac_output_total_power
+          - entity: sensor.soliscloud_energy_today
+          - entity: sensor.soliscloud_energy_this_year
+        title: SolisCloud - Aurinkopaneelit
+      - type: entities
+        entities:
+          - sensor.shelly_kulutusmittari

@@ -1,0 +1,3 @@
+- name: "Säätiedot_ulkolämpötila"
+  unit_of_measurement: "°C"
+  state: "{{ state_attr('weather.forecast_koti', 'temperature')  }}"

@@ -1,28 +1,74 @@
-- id: "NordPoolNibe"
-  alias: NordPool_Nibe
-  description: Niben ohjaus pörssisähkön mukaan.
+- id: NibeActivateHighDemand
+  alias: Nibe Activate High Demand
+  description: 'Niben veden lämpötilan aktivointi pörssisähkön mukaan.
+
+
+    Kytketään lisälämmitys päälle.'
   triggers:
   - trigger: time_pattern
-    hours: /1
+    hours: '6'
     minutes: 0
+  - trigger: time_pattern
+    hours: '7'
+    minutes: '0'
+  - trigger: time_pattern
+    hours: '20'
+    minutes: '0'
+  conditions:
+  - alias: Nordpool Max Today
+    condition: numeric_state
+    entity_id: sensor.nordpool_kwh_fi_eur_3_10_0255
+    above: 3
+    attribute: max
+  - condition: numeric_state
+    entity_id: sensor.soliscloud_ac_output_total_power
+    above: 2000
+  - condition: numeric_state
+    entity_id: water_heater.f470_hot_water
+    attribute: current_temperature
+    below: 52
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: Nostetaan kuuman veden lämpötilaa, nykyinen lämpötila {{ state_attr("water_heater.f470_hot_water",
+        "current_temperature") }} C.
+      title: 'Nibe Activate High Demand, ajankohta: {{ (now().timestamp()) | timestamp_custom(''%d.%m.%Y
+        klo %H:%M:%S'') }}'
+  - action: water_heater.set_operation_mode
+    target:
+      entity_id: water_heater.f470_hot_water
+    data:
+      operation_mode: high_demand
+  mode: single
+- id: '1747219368176'
+  alias: Nibe Activate Heat Pump, klo 6.25, 7.25 ja 20.25
+  description: 'Niben veden lämpötilan inaktivointi pörssisähkön mukaan.
+
+
+    Otetaan pois päältä korkean lämpötilan aktivointi.'
+  triggers:
+  - trigger: time_pattern
+    hours: '6'
+    minutes: '25'
+  - trigger: time_pattern
+    hours: '7'
+    minutes: '25'
+  - trigger: time_pattern
+    hours: '20'
+    minutes: '25'
   conditions: []
   actions:
   - action: persistent_notification.create
     metadata: {}
     data:
-      message: "Saku testaa."
-      title: "Sakkeus, ajankohta: {{ (now().timestamp()) | timestamp_custom('%d.%m.%Y klo %H:%M:%S') }}"
-  mode: single
-  
-- id: "NordPoolNibeLogs"
-  alias: "NordPool_Nibe_Logs"
-  description: Lokitus, että tarkistetaan pörssisähkö.
-  triggers:
-    - trigger: event
-      event_type: system_log_event
-  actions:
-  - action: system_log.write
+      message: Otetaan pois päältä kuuman veden lisälämmitys, nykyinen lämpötila {{
+        state_attr("water_heater.f470_hot_water", "current_temperature") }} C.
+      title: 'Nibe Activate Heat Pump, ajankohta: {{ (now().timestamp()) | timestamp_custom(''%d.%m.%Y
+        klo %H:%M:%S'') }}'
+  - action: water_heater.set_operation_mode
+    target:
+      entity_id: water_heater.f470_hot_water
     data:
-      message: "[NIBE] Saku testaa lokitusta."
-      level: info
-      logger: LOGGER
+      operation_mode: heat_pump
+  mode: single
