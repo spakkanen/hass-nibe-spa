@@ -1,0 +1,13 @@
+- name: "nordpool_kwh_next_hour_price"
+  unit_of_measurement: "kWh"
+  state_class: measurement
+  device_class: energy
+  state: >
+    {% set nordpool=state_attr( 'sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_today') %}
+    {% set hour=now() | as_timestamp | timestamp_custom('%H') | int %}
+    {% set nordpool_tomorrow=state_attr( 'sensor.nordpool_kwh_fi_eur_3_10_0255', 'raw_tomorrow') %}
+    {% if hour < 23 %}
+      {{ nordpool[hour+1].value | default(0) }}
+    {% else %}
+      {{ nordpool_tomorrow[0].value | default(0) }}
+    {% endif %}

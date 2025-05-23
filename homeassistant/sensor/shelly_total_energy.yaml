@@ -1,0 +1,16 @@
+- name: "shelly_total_energy_kWh"
+  unit_of_measurement: "kWh"
+  state_class: measurement
+  device_class: energy
+  state: >
+     {{ [ states('sensor.shellyem3_485519dacdc3_channel_a_energy'),
+          states('sensor.shellyem3_485519dacdc3_channel_b_energy'),
+          states('sensor.shellyem3_485519dacdc3_channel_c_energy') ]
+        | map('float') | sum }}
+  attributes:
+    last_reset: '1970-01-01T00:00:00+00:00'
+  availability: >
+    {{ not 'unavailable' in
+       [ states('sensor.shellyem3_485519dacdc3_channel_a_energy'),
+         states('sensor.shellyem3_485519dacdc3_channel_b_energy'),
+         states('sensor.shellyem3_485519dacdc3_channel_c_energy') ] }}
